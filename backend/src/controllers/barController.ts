@@ -13,6 +13,8 @@ const demoBars = [
     description: "Bar vintage avec ambiance jazz et cocktails artisanaux",
     phone: "01 40 29 12 34",
     website: "https://lecomptoirgeneral.com",
+    budget: '€€',
+    style_musical: 'jazz',
     created_at: new Date(),
     updated_at: new Date(),
     votes: [
@@ -39,6 +41,8 @@ const demoBars = [
     description: "Bar spécialisé en bières artisanales et vins naturels",
     phone: "01 45 67 89 01",
     website: "https://lacaveabulles.fr",
+    budget: '€€',
+    style_musical: 'indé',
     created_at: new Date(),
     updated_at: new Date(),
     votes: [
@@ -65,6 +69,8 @@ const demoBars = [
     description: "Bar irlandais authentique avec musique live",
     phone: "01 43 25 40 25",
     website: "https://lefougeresparis.com",
+    budget: '€',
+    style_musical: 'rock',
     created_at: new Date(),
     updated_at: new Date(),
     votes: [
@@ -91,6 +97,8 @@ const demoBars = [
     description: "Café branché avec terrasse et petite restauration",
     phone: "01 44 07 17 89",
     website: "https://cafedelaplace.fr",
+    budget: '€€',
+    style_musical: 'electro',
     created_at: new Date(),
     updated_at: new Date(),
     votes: []
@@ -104,6 +112,8 @@ const demoBars = [
     description: "Bar convivial près du marché Mouffetard",
     phone: "01 43 54 98 76",
     website: "https://lebarmarcheparis.com",
+    budget: '€',
+    style_musical: 'variété',
     created_at: new Date(),
     updated_at: new Date(),
     votes: []
@@ -112,12 +122,48 @@ const demoBars = [
 
 export const getAllBars = async (req: Request, res: Response<ApiResponse>) => {
   try {
-    // Pour la démo, on retourne les données statiques
-    // En production, on utiliserait: const bars = await Bar.findAll({ include: [{ model: Vote, as: 'votes' }] });
+    const { budget, style_musical, ambiance_min, ambiance_max, affluence } = req.query;
+    
+    let filteredBars = [...demoBars];
+    
+    // Filtrage par budget
+    if (budget && typeof budget === 'string') {
+      filteredBars = filteredBars.filter(bar => bar.budget === budget);
+    }
+    
+    // Filtrage par style musical
+    if (style_musical && typeof style_musical === 'string') {
+      filteredBars = filteredBars.filter(bar => bar.style_musical === style_musical);
+    }
+    
+    // Filtrage par ambiance (basé sur les votes)
+    if (ambiance_min || ambiance_max) {
+      filteredBars = filteredBars.filter(bar => {
+        if (bar.votes.length === 0) return false;
+        
+        const avgAmbiance = bar.votes.reduce((sum, vote) => sum + vote.ambiance_score, 0) / bar.votes.length;
+        
+        const minScore = ambiance_min ? parseInt(ambiance_min as string) : 0;
+        const maxScore = ambiance_max ? parseInt(ambiance_max as string) : 5;
+        
+        return avgAmbiance >= minScore && avgAmbiance <= maxScore;
+      });
+    }
+    
+    // Filtrage par affluence (dernier vote enregistré)
+    if (affluence && typeof affluence === 'string') {
+      filteredBars = filteredBars.filter(bar => {
+        if (bar.votes.length === 0) return false;
+        
+        // Trier les votes par date et prendre le plus récent
+        const latestVote = bar.votes.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())[0];
+        return latestVote.affluence_level === affluence;
+      });
+    }
     
     res.json({
       success: true,
-      data: demoBars
+      data: filteredBars
     });
   } catch (error) {
     console.error('Error fetching bars:', error);

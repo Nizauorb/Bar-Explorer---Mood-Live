@@ -62,6 +62,8 @@ export interface BarInstance extends Model {
   description?: string;
   phone?: string;
   website?: string;
+  budget?: '€' | '€€' | '€€€' | '€€€€';
+  style_musical?: 'rock' | 'electro' | 'jazz' | 'rap' | 'pop' | 'reggae' | 'salsa' | 'variété' | 'indé' | 'classique';
   created_at: Date;
   updated_at: Date;
 }
@@ -106,6 +108,14 @@ export const Bar = sequelize.define<BarInstance>('Bar', {
   },
   website: {
     type: DataTypes.STRING(500),
+    allowNull: true,
+  },
+  budget: {
+    type: DataTypes.ENUM('€', '€€', '€€€', '€€€€'),
+    allowNull: true,
+  },
+  style_musical: {
+    type: DataTypes.ENUM('rock', 'electro', 'jazz', 'rap', 'pop', 'reggae', 'salsa', 'variété', 'indé', 'classique'),
     allowNull: true,
   },
 }, {

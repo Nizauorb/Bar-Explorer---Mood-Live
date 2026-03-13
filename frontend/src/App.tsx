@@ -4,6 +4,8 @@ import type { Bar } from './types';
 import BarPopup from './components/BarPopup';
 import LeafletMap from './components/LeafletMap';
 import Login from './components/Login';
+import Filters from './components/Filters';
+import type { FiltersState } from './components/Filters';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
@@ -15,6 +17,13 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FiltersState>({
+    budget: '',
+    style_musical: '',
+    ambiance_min: '',
+    ambiance_max: '',
+    affluence: ''
+  });
 
   // Vérifier si l'utilisateur est déjà connecté au chargement
   useEffect(() => {
@@ -36,11 +45,26 @@ function App() {
     setIsAuthenticated(false);
   };
 
+  const handleFiltersChange = (newFilters: FiltersState) => {
+    setFilters(newFilters);
+  };
+
   // Charger les bars depuis l'API
   useEffect(() => {
     const fetchBars = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/bars`);
+        // Construire les query parameters pour les filtres
+        const queryParams = new URLSearchParams();
+        
+        if (filters.budget) queryParams.append('budget', filters.budget);
+        if (filters.style_musical) queryParams.append('style_musical', filters.style_musical);
+        if (filters.ambiance_min) queryParams.append('ambiance_min', filters.ambiance_min);
+        if (filters.ambiance_max) queryParams.append('ambiance_max', filters.ambiance_max);
+        if (filters.affluence) queryParams.append('affluence', filters.affluence);
+
+        const url = `${API_BASE_URL}/bars${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+        
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Failed to fetch bars');
         }
@@ -59,7 +83,7 @@ function App() {
     };
 
     fetchBars();
-  }, []);
+  }, [filters]); // Ajout de filters comme dépendance
 
   // Obtenir la position de l'utilisateur
   useEffect(() => {
@@ -172,12 +196,15 @@ function App() {
             <h1 className="text-lg md:text-xl font-bold">Bar Explorer</h1>
             <p className="be-caption mt-1 text-xs">Trouvez les bars les plus animés</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="be-btn be-btn-secondary text-xs px-2"
-          >
-            🚪 Déconnexion
-          </button>
+          <div className="flex gap-2">
+            <Filters onFiltersChange={handleFiltersChange} />
+            <button
+              onClick={handleLogout}
+              className="be-btn be-btn-secondary text-xs px-2"
+            >
+              🚪 Déconnexion
+            </button>
+          </div>
         </div>
       </header>
 

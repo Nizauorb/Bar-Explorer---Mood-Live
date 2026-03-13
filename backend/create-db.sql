@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS bars (
   description TEXT,
   phone VARCHAR(20),
   website VARCHAR(500),
+  budget ENUM('€', '€€', '€€€', '€€€€'),
+  style_musical ENUM('rock', 'electro', 'jazz', 'rap', 'pop', 'reggae', 'salsa', 'variété', 'indé', 'classique'),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
