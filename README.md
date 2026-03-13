@@ -42,7 +42,7 @@ Le projet utilise un design system personnalisé défini dans `bar-explorer-desi
 Le développement suit une approche étape par étape :
 1. Structure du projet ✅
 2. Frontend React + Vite + Tailwind ✅
-3. Intégration design system
+3. Intégration design system ✅
 4. Backend Node.js + Express
 5. Base de données MySQL + Sequelize
 
@@ -51,10 +51,19 @@ Le développement suit une approche étape par étape :
 **Frontend** : 
 - ✅ React + TypeScript + Vite configuré
 - ✅ Tailwind CSS intégré avec design system
+- ✅ Design system CSS complètement intégré (tokens, composants)
+- ✅ PostCSS configuré et serveur dev fonctionnel
 - ✅ Structure de base avec composants Bar Explorer
-- ✅ Design system CSS importé et fonctionnel
 
 **Prochaines étapes** :
-- Intégration complète du design system
-- Création des composants d'authentification
-- Mise en place du backend
+- Initialisation backend Node.js + Express + TypeScript
+- Configuration Sequelize ORM avec MySQL
+- Création des modèles de base de données
+- Développement des routes API
+
+### 🎨 Design System intégré
+
+- **Tokens CSS** : Couleurs primaires violettes, surfaces, typographie
+- **Composants** : Boutons `.be-btn-primary`, `.be-btn-secondary`, cards `.be-card`
+- **Typographie** : Classes `.be-heading-*`, `.be-body`, `.be-caption`
+- **Thème** : Cohérent avec les mockups mobiles (authentification, profil)
