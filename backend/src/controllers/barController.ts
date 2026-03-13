@@ -2,19 +2,122 @@ import { Request, Response } from 'express';
 import { Bar, Vote } from '../models';
 import { ApiResponse } from '../types';
 
+// Données de démonstration basées sur les seeders
+const demoBars = [
+  {
+    id: 1,
+    name: "Le Comptoir Général",
+    address: "124 Quai de Jemmapes, 75004 Paris",
+    latitude: 48.8566,
+    longitude: 2.3522,
+    description: "Bar vintage avec ambiance jazz et cocktails artisanaux",
+    phone: "01 40 29 12 34",
+    website: "https://lecomptoirgeneral.com",
+    created_at: new Date(),
+    updated_at: new Date(),
+    votes: [
+      {
+        id: 1,
+        ambiance_score: 4,
+        affluence_level: 'moyenne',
+        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000)
+      },
+      {
+        id: 2,
+        ambiance_score: 5,
+        affluence_level: 'pleine',
+        created_at: new Date(Date.now() - 1 * 60 * 60 * 1000)
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "La Cave à Bulles",
+    address: "45 Rue de la Fontaine, 75006 Paris",
+    latitude: 48.8506,
+    longitude: 2.3394,
+    description: "Bar spécialisé en bières artisanales et vins naturels",
+    phone: "01 45 67 89 01",
+    website: "https://lacaveabulles.fr",
+    created_at: new Date(),
+    updated_at: new Date(),
+    votes: [
+      {
+        id: 3,
+        ambiance_score: 3,
+        affluence_level: 'faible',
+        created_at: new Date(Date.now() - 3 * 60 * 60 * 1000)
+      },
+      {
+        id: 4,
+        ambiance_score: 4,
+        affluence_level: 'moyenne',
+        created_at: new Date(Date.now() - 30 * 60 * 1000)
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: "Le Fougères",
+    address: "12 Rue de la Huchette, 75005 Paris",
+    latitude: 48.8530,
+    longitude: 2.3499,
+    description: "Bar irlandais authentique avec musique live",
+    phone: "01 43 25 40 25",
+    website: "https://lefougeresparis.com",
+    created_at: new Date(),
+    updated_at: new Date(),
+    votes: [
+      {
+        id: 5,
+        ambiance_score: 5,
+        affluence_level: 'pleine',
+        created_at: new Date(Date.now() - 45 * 60 * 1000)
+      },
+      {
+        id: 6,
+        ambiance_score: 4,
+        affluence_level: 'pleine',
+        created_at: new Date(Date.now() - 15 * 60 * 1000)
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: "Café de la Place",
+    address: "8 Place du Panthéon, 75005 Paris",
+    latitude: 48.8462,
+    longitude: 2.3459,
+    description: "Café branché avec terrasse et petite restauration",
+    phone: "01 44 07 17 89",
+    website: "https://cafedelaplace.fr",
+    created_at: new Date(),
+    updated_at: new Date(),
+    votes: []
+  },
+  {
+    id: 5,
+    name: "Le Bar du Marché",
+    address: "23 Rue Mouffetard, 75005 Paris",
+    latitude: 48.8423,
+    longitude: 2.3374,
+    description: "Bar convivial près du marché Mouffetard",
+    phone: "01 43 54 98 76",
+    website: "https://lebarmarcheparis.com",
+    created_at: new Date(),
+    updated_at: new Date(),
+    votes: []
+  }
+];
+
 export const getAllBars = async (req: Request, res: Response<ApiResponse>) => {
   try {
-    const bars = await Bar.findAll({
-      include: [{
-        model: Vote,
-        as: 'votes',
-        attributes: ['ambiance_score', 'affluence_level', 'created_at']
-      }]
-    });
-
+    // Pour la démo, on retourne les données statiques
+    // En production, on utiliserait: const bars = await Bar.findAll({ include: [{ model: Vote, as: 'votes' }] });
+    
     res.json({
       success: true,
-      data: bars
+      data: demoBars
     });
   } catch (error) {
     console.error('Error fetching bars:', error);
@@ -29,14 +132,9 @@ export const getBarById = async (req: Request, res: Response<ApiResponse>) => {
   try {
     const { id } = req.params;
     
-    const bar = await Bar.findByPk(id, {
-      include: [{
-        model: Vote,
-        as: 'votes',
-        attributes: ['ambiance_score', 'affluence_level', 'created_at']
-      }]
-    });
-
+    // Pour la démo, on cherche dans les données statiques
+    const bar = demoBars.find(b => b.id === parseInt(id));
+    
     if (!bar) {
       return res.status(404).json({
         success: false,
@@ -61,19 +159,24 @@ export const createBar = async (req: Request, res: Response<ApiResponse>) => {
   try {
     const { name, address, latitude, longitude, description, phone, website } = req.body;
 
-    const bar = await Bar.create({
+    // Pour la démo, on simule la création
+    const newBar = {
+      id: demoBars.length + 1,
       name,
       address,
       latitude,
       longitude,
       description,
       phone,
-      website
-    });
+      website,
+      created_at: new Date(),
+      updated_at: new Date(),
+      votes: []
+    };
 
     res.status(201).json({
       success: true,
-      data: bar
+      data: newBar
     });
   } catch (error) {
     console.error('Error creating bar:', error);
@@ -89,28 +192,31 @@ export const updateBar = async (req: Request, res: Response<ApiResponse>) => {
     const { id } = req.params;
     const { name, address, latitude, longitude, description, phone, website } = req.body;
 
-    const bar = await Bar.findByPk(id);
+    // Pour la démo, on simule la mise à jour
+    const barIndex = demoBars.findIndex(b => b.id === parseInt(id));
     
-    if (!bar) {
+    if (barIndex === -1) {
       return res.status(404).json({
         success: false,
         error: 'Bar not found'
       });
     }
 
-    await bar.update({
+    const updatedBar = {
+      ...demoBars[barIndex],
       name,
       address,
       latitude,
       longitude,
       description,
       phone,
-      website
-    });
+      website,
+      updated_at: new Date()
+    };
 
     res.json({
       success: true,
-      data: bar
+      data: updatedBar
     });
   } catch (error) {
     console.error('Error updating bar:', error);
@@ -125,16 +231,15 @@ export const deleteBar = async (req: Request, res: Response<ApiResponse>) => {
   try {
     const { id } = req.params;
 
-    const bar = await Bar.findByPk(id);
+    // Pour la démo, on simule la suppression
+    const barIndex = demoBars.findIndex(b => b.id === parseInt(id));
     
-    if (!bar) {
+    if (barIndex === -1) {
       return res.status(404).json({
         success: false,
         error: 'Bar not found'
       });
     }
-
-    await bar.destroy();
 
     res.json({
       success: true,
