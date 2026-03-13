@@ -92,6 +92,7 @@ const startServer = async () => {
       console.log(`   GET  /api/auth/profile - Get user profile (protected)`);
       console.log(`   GET  /api/bars - Get all bars`);
       console.log(`   GET  /api/bars/:id - Get bar by ID`);
+      console.log(`   POST /api/votes - Create new vote (protected)`);
       console.log(`   GET  /api/users - Get all users`);
       console.log(`   GET  /api/users/:id - Get user by ID`);
     });

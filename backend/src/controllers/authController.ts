@@ -58,14 +58,16 @@ export const register = async (req: Request, res: Response<ApiResponse>) => {
 
     // Préparer le payload pour le token
     const { password: _, ...userWithoutPassword } = user.toJSON();
-    const payload: Omit<AuthPayload, 'token'> = {
-      user: userWithoutPassword
+    const payload: AuthPayload = {
+      id: userWithoutPassword.id,
+      email: userWithoutPassword.email,
+      username: userWithoutPassword.username
     };
 
     // Générer le token
     const token = generateToken(payload);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: {
         user: userWithoutPassword,
@@ -74,7 +76,7 @@ export const register = async (req: Request, res: Response<ApiResponse>) => {
     });
   } catch (error) {
     console.error('Error during registration:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to register user'
     });
@@ -93,38 +95,35 @@ export const login = async (req: Request, res: Response<ApiResponse>) => {
       });
     }
 
-    // Trouver l'utilisateur
-    const user = await User.findOne({
-      where: { email }
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid credentials'
-      });
-    }
-
-    // Vérifier le mot de passe
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid credentials'
-      });
-    }
-
-    // Préparer le payload pour le token
-    const { password: _, ...userWithoutPassword } = user.toJSON();
-    const payload: Omit<AuthPayload, 'token'> = {
-      user: userWithoutPassword
+    // Mode démo : utilisateur prédéfini
+    const demoUser = {
+      id: 1,
+      email: 'demo@barexplorer.com',
+      username: 'demo_user',
+      password: 'password123', // En clair pour la démo
+      created_at: new Date(),
+      updated_at: new Date()
     };
 
-    // Générer le token
-    const token = generateToken(payload);
+    // Vérifier si c'est l'utilisateur de démo
+    if (email !== demoUser.email || password !== demoUser.password) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials. Use demo@barexplorer.com / password123'
+      });
+    }
 
-    res.json({
+    // Générer le token
+    const token = generateToken({
+      id: demoUser.id,
+      email: demoUser.email,
+      username: demoUser.username
+    });
+
+    // Retourner les données de l'utilisateur sans le mot de passe
+    const { password: _, ...userWithoutPassword } = demoUser;
+
+    return res.json({
       success: true,
       data: {
         user: userWithoutPassword,
@@ -133,9 +132,9 @@ export const login = async (req: Request, res: Response<ApiResponse>) => {
     });
   } catch (error) {
     console.error('Error during login:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      error: 'Failed to login'
+      error: 'Failed to login user'
     });
   }
 };
@@ -152,13 +151,13 @@ export const getProfile = async (req: Request, res: Response<ApiResponse>) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: user
     });
   } catch (error) {
     console.error('Error fetching profile:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch profile'
     });

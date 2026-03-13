@@ -27,13 +27,13 @@ const BarPopup: React.FC<BarPopupProps> = ({ bar, onClose, onVote, onFavorite, i
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="be-card max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+      <div className="be-card max-w-md w-full max-h-[80vh] overflow-y-auto relative">
         <div className="flex justify-between items-start mb-4">
-          <h2 className="be-heading-2">{bar.name}</h2>
+          <h2 className="be-heading-2 text-lg">{bar.name}</h2>
           <button 
             onClick={onClose}
-            className="text-text-muted hover:text-text-primary text-2xl leading-none"
+            className="text-text-muted hover:text-text-primary text-2xl leading-none flex-shrink-0"
           >
             ×
           </button>
@@ -166,7 +166,7 @@ const BarPopup: React.FC<BarPopupProps> = ({ bar, onClose, onVote, onFavorite, i
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={handleFavorite}
               className={`be-btn flex-1 ${

@@ -181,7 +181,7 @@ const LeafletMap: React.FC<LeafletMapProps> = ({ bars, onBarClick, userLocation 
     };
   }, [bars, onBarClick, userLocation]);
 
-  return <div id="map" style={{ width: '100%', height: '100%' }} />;
+  return <div id="map" className="w-full h-full" />;
 };
 
 export default LeafletMap;

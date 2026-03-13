@@ -47,6 +47,12 @@ export interface ApiResponse<T = any> {
 }
 
 export interface AuthPayload {
+  id: number;
+  email: string;
+  username: string;
+}
+
+export interface AuthResponse {
   user: Omit<User, 'password'>;
   token: string;
 }

@@ -20,19 +20,16 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
 
     const decoded = verifyToken(token);
     
-    // Récupérer l'utilisateur complet depuis la base de données
-    const user = await User.findByPk(decoded.user.id, {
-      attributes: { exclude: ['password'] }
-    });
+    // Mode démo : utiliser l'utilisateur démo directement
+    const demoUser = {
+      id: decoded.id,
+      email: decoded.email,
+      username: decoded.username,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        error: 'User not found'
-      });
-    }
-
-    req.user = user;
+    req.user = demoUser;
     next();
   } catch (error) {
     return res.status(403).json({
@@ -49,13 +46,16 @@ export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFu
 
     if (token) {
       const decoded = verifyToken(token);
-      const user = await User.findByPk(decoded.user.id, {
-        attributes: { exclude: ['password'] }
-      });
+      // Mode démo : utiliser l'utilisateur démo directement
+      const demoUser = {
+        id: decoded.id,
+        email: decoded.email,
+        username: decoded.username,
+        created_at: new Date(),
+        updated_at: new Date()
+      };
       
-      if (user) {
-        req.user = user;
-      }
+      req.user = demoUser;
     }
     
     next();
