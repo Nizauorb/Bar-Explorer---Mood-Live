@@ -43,8 +43,11 @@ Le développement suit une approche étape par étape :
 1. Structure du projet ✅
 2. Frontend React + Vite + Tailwind ✅
 3. Intégration design system ✅
-4. Backend Node.js + Express
-5. Base de données MySQL + Sequelize
+4. Backend Node.js + Express ✅
+5. Base de données MySQL + Sequelize ✅
+6. Modèles et seeders ✅
+7. Routes API de base
+8. Authentification JWT
 
 ### 🎯 État actuel
 
@@ -55,11 +58,25 @@ Le développement suit une approche étape par étape :
 - ✅ PostCSS configuré et serveur dev fonctionnel
 - ✅ Structure de base avec composants Bar Explorer
 
+**Backend** :
+- ✅ Node.js + Express + TypeScript configuré
+- ✅ Sequelize ORM avec MySQL configuré
+- ✅ Modèles complets (User, Bar, Vote, Favorite) avec associations
+- ✅ Seeders de démonstration (utilisateurs, bars, votes, favoris)
+- ✅ Scripts de gestion de base de données (migrate, seed, reset)
+- ✅ Socket.io configuré pour temps réel
+- ✅ Serveur dev fonctionnel sur port 3000
+
+**Base de données** :
+- ✅ Configuration MySQL avec Sequelize
+- ✅ Modèles typés avec TypeScript
+- ✅ Seeders avec données de démonstration
+- ✅ Scripts de migration et peuplement
+
 **Prochaines étapes** :
-- Initialisation backend Node.js + Express + TypeScript
-- Configuration Sequelize ORM avec MySQL
-- Création des modèles de base de données
-- Développement des routes API
+- Mettre en place les routes API de base (auth, users, bars)
+- Implémenter l'authentification JWT + inscription/connexion
+- Créer les composants frontend selon les mockups
 
 ### 🎨 Design System intégré
 
@@ -67,3 +84,9 @@ Le développement suit une approche étape par étape :
 - **Composants** : Boutons `.be-btn-primary`, `.be-btn-secondary`, cards `.be-card`
 - **Typographie** : Classes `.be-heading-*`, `.be-body`, `.be-caption`
 - **Thème** : Cohérent avec les mockups mobiles (authentification, profil)
+
+### 🗄️ Base de données
+
+- **Modèles** : User, Bar, Vote, Favorite avec relations complètes
+- **Seeders** : Données de démo (3 utilisateurs, 5 bars, votes, favoris)
+- **Scripts** : `npm run db:migrate`, `npm run db:seed`, `npm run db:reset`
