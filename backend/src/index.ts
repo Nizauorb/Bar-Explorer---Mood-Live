@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import sequelize from './config/database';
+import apiRoutes from './routes';
 
 // Load environment variables
 dotenv.config();
@@ -29,7 +30,12 @@ app.get('/', (req, res) => {
   res.json({
     message: 'Bar Explorer - Mood Live API',
     version: '1.0.0',
-    status: 'running'
+    status: 'running',
+    endpoints: {
+      health: '/api/health',
+      bars: '/api/bars',
+      users: '/api/users'
+    }
   });
 });
 
@@ -40,6 +46,9 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime()
   });
 });
+
+// API routes
+app.use('/api', apiRoutes);
 
 // Socket.IO connection
 io.on('connection', (socket) => {
@@ -72,6 +81,11 @@ const startServer = async () => {
       console.log(`📡 Socket.IO server ready`);
       console.log(`🔗 API available at http://localhost:${PORT}`);
       console.log(`🎯 Frontend should be available at http://localhost:5173`);
+      console.log(`📊 API Endpoints:`);
+      console.log(`   GET  /api/bars - Get all bars`);
+      console.log(`   GET  /api/bars/:id - Get bar by ID`);
+      console.log(`   GET  /api/users - Get all users`);
+      console.log(`   GET  /api/users/:id - Get user by ID`);
     });
   } catch (error) {
     console.error('❌ Unable to start server:', error);
