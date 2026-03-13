@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth';
-import { createVote } from '../controllers/voteController.js';
+import { createVote } from '../controllers/voteController';
 
 const router = Router();
 

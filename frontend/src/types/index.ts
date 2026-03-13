@@ -18,6 +18,8 @@ export interface Bar {
   description?: string;
   phone?: string;
   website?: string;
+  budget?: string;
+  style_musical?: string;
   ambiance_score?: number;
   affluence_level?: 'faible' | 'moyenne' | 'pleine';
   votes?: Vote[];
