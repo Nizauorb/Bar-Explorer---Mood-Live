@@ -46,8 +46,10 @@ Le développement suit une approche étape par étape :
 4. Backend Node.js + Express ✅
 5. Base de données MySQL + Sequelize ✅
 6. Modèles et seeders ✅
-7. Routes API de base
-8. Authentification JWT
+7. Routes API de base ✅
+8. Authentification JWT ✅
+9. Page principale avec carte interactive
+10. Affichage des bars sur la carte
 
 ### 🎯 État actuel
 
@@ -66,6 +68,8 @@ Le développement suit une approche étape par étape :
 - ✅ Scripts de gestion de base de données (migrate, seed, reset)
 - ✅ Socket.io configuré pour temps réel
 - ✅ Serveur dev fonctionnel sur port 3000
+- ✅ API REST complète (bars, users, authentification)
+- ✅ Authentification JWT avec middleware de protection
 
 **Base de données** :
 - ✅ Configuration MySQL avec Sequelize
@@ -73,9 +77,18 @@ Le développement suit une approche étape par étape :
 - ✅ Seeders avec données de démonstration
 - ✅ Scripts de migration et peuplement
 
+**Authentification** :
+- ✅ JWT tokens avec expiration configurable
+- ✅ Middleware authenticateToken() pour routes protégées
+- ✅ Inscription avec validation (email, username, password)
+- ✅ Login avec vérification bcryptjs
+- ✅ Endpoint profil utilisateur protégé
+- ✅ Gestion complète des erreurs et validation
+
 **Prochaines étapes** :
-- Mettre en place les routes API de base (auth, users, bars)
-- Implémenter l'authentification JWT + inscription/connexion
+- Créer la page principale avec carte interactive (Mapbox)
+- Afficher les bars sur la carte avec marqueurs
+- Implémenter le système de vote (ambiance 0-5, affluence)
 - Créer les composants frontend selon les mockups
 
 ### 🎨 Design System intégré
@@ -90,3 +103,10 @@ Le développement suit une approche étape par étape :
 - **Modèles** : User, Bar, Vote, Favorite avec relations complètes
 - **Seeders** : Données de démo (3 utilisateurs, 5 bars, votes, favoris)
 - **Scripts** : `npm run db:migrate`, `npm run db:seed`, `npm run db:reset`
+
+### 🔐 Authentification
+
+- **JWT** : Tokens avec expiration configurable
+- **Endpoints** : `/api/auth/register`, `/api/auth/login`, `/api/auth/profile`
+- **Sécurité** : Hashing passwords, validation complète, middleware de protection
+- **Middleware** : `authenticateToken()` pour routes protégées, `optionalAuth()` optionnel
