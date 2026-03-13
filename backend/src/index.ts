@@ -33,6 +33,11 @@ app.get('/', (req, res) => {
     status: 'running',
     endpoints: {
       health: '/api/health',
+      auth: {
+        register: 'POST /api/auth/register',
+        login: 'POST /api/auth/login',
+        profile: 'GET /api/auth/profile (protected)'
+      },
       bars: '/api/bars',
       users: '/api/users'
     }
@@ -82,6 +87,9 @@ const startServer = async () => {
       console.log(`🔗 API available at http://localhost:${PORT}`);
       console.log(`🎯 Frontend should be available at http://localhost:5173`);
       console.log(`📊 API Endpoints:`);
+      console.log(`   POST /api/auth/register - Register new user`);
+      console.log(`   POST /api/auth/login - Login user`);
+      console.log(`   GET  /api/auth/profile - Get user profile (protected)`);
       console.log(`   GET  /api/bars - Get all bars`);
       console.log(`   GET  /api/bars/:id - Get bar by ID`);
       console.log(`   GET  /api/users - Get all users`);
