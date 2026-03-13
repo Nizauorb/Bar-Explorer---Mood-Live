@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import sequelize from './config/database';
 
 // Load environment variables
 dotenv.config();
@@ -49,11 +50,35 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+// Database connection and server start
+const startServer = async () => {
+  try {
+    // Test database connection (optional for now)
+    try {
+      await sequelize.authenticate();
+      console.log('🗄️  Database connection established successfully');
+      
+      // Sync models (create tables if they don't exist)
+      await sequelize.sync({ force: false });
+      console.log('📋 Database models synchronized');
+    } catch (dbError) {
+      console.log('⚠️  Database not available, running without database');
+      console.log('   To enable database, install MySQL and configure .env');
+    }
+    
+    const PORT = process.env.PORT || 3000;
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📡 Socket.IO server ready`);
+      console.log(`🔗 API available at http://localhost:${PORT}`);
+      console.log(`🎯 Frontend should be available at http://localhost:5173`);
+    });
+  } catch (error) {
+    console.error('❌ Unable to start server:', error);
+    process.exit(1);
+  }
+};
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 Socket.IO server ready`);
-});
+startServer();
 
 export { app, io };
