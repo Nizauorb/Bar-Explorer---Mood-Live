@@ -85,9 +85,21 @@ Le développement suit une approche étape par étape :
 - ✅ Endpoint profil utilisateur protégé
 - ✅ Gestion complète des erreurs et validation
 
+**Carte Interactive** :
+- ✅ Intégration Leaflet avec OpenStreetMap (gratuit)
+- ✅ Marqueurs personnalisés pour les bars (icône 🍺 violette)
+- ✅ Géolocalisation utilisateur avec marqueur 📍
+- ✅ Popup détaillées avec informations des bars et derniers votes
+- ✅ Affichage de l'ambiance (⭐ 0-5) et niveau d'affluence
+- ✅ Correction des erreurs TypeScript (null/undefined) et Leaflet (appendChild)
+- ✅ Temps réel avec mise à jour automatique des marqueurs
+
 **Prochaines étapes** :
-- Créer la page principale avec carte interactive (Mapbox)
-- Afficher les bars sur la carte avec marqueurs
+- ✅ Page principale avec carte interactive (Leaflet)
+- ✅ Affichage des bars sur la carte avec marqueurs personnalisés
+- ✅ Géolocalisation utilisateur sur la carte
+- ✅ Popup détaillée avec informations des bars et votes
+- ✅ Correction des erreurs TypeScript et Leaflet
 - Implémenter le système de vote (ambiance 0-5, affluence)
 - Créer les composants frontend selon les mockups
 
