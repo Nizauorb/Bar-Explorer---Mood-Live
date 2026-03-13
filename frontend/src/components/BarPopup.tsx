@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Bar } from './Map';
+import type { Bar } from '../types';
 
 interface BarPopupProps {
   bar: Bar;

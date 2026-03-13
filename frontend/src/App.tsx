@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import type { Bar } from './components/Map';
+import type { Bar } from './types';
 import BarPopup from './components/BarPopup';
 import LeafletMap from './components/LeafletMap';
 
