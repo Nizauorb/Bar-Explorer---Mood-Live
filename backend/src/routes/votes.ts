@@ -34,7 +34,7 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// POST /api/votes - Créer ou modifier un vote
+// POST /api/votes
 router.post('/', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { bar_id, mood, crowd, comment, user_latitude, user_longitude } = req.body;
@@ -59,35 +59,37 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
       });
     }
 
-    // Vérifier si l'utilisateur a déjà voté pour ce bar
+    // Vérifier si l'utilisateur a déjà voté pour ce bar récemment
     const existingVote = await Vote.findOne({
-      where: { user_id: userId, bar_id }
+      where: { user_id: userId, bar_id },
+      order: [['created_at', 'DESC']]
     });
 
-    let vote;
-    if (existingVote) {
-      // Modifier le vote existant
-      vote = await existingVote.update({
-        mood,
-        crowd,
-        comment: comment || existingVote.comment,
-        user_latitude,
-        user_longitude
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+
+    // Si vote existant < 15 minutes -> BLOQUER
+    if (existingVote && existingVote.created_at > fifteenMinutesAgo) {
+      const timeRemaining = Math.ceil((existingVote.created_at.getTime() + 15 * 60 * 1000 - now.getTime()) / 60 / 1000);
+      
+      return res.status(429).json({
+        error: `Veuillez attendre ${timeRemaining} minutes avant de voter à nouveau pour ce bar`,
+        canVoteIn: timeRemaining
       });
-      console.log(`✅ Vote mis à jour: utilisateur ${userId} -> bar ${bar_id}`);
-    } else {
-      // Créer un nouveau vote
-      vote = await Vote.create({
-        user_id: userId,
-        bar_id,
-        mood,
-        crowd,
-        comment,
-        user_latitude,
-        user_longitude
-      });
-      console.log(`✅ Vote créé: utilisateur ${userId} -> bar ${bar_id}`);
     }
+
+    // Créer nouveau vote
+    const vote = await Vote.create({
+      user_id: userId,
+      bar_id,
+      mood,
+      crowd,
+      comment,
+      user_latitude,
+      user_longitude
+    });
+    
+    console.log(`✅ Vote créé: utilisateur ${userId} -> bar ${bar_id}`);
 
     res.json({
       success: true,
@@ -203,6 +205,35 @@ router.get('/user/:userId', authenticateToken, async (req: Request, res: Respons
     console.error('❌ Erreur votes utilisateur:', error);
     res.status(500).json({ 
       error: 'Erreur lors de la récupération des votes', 
+      details: error.message 
+    });
+  }
+});
+
+router.delete('/cleanup', async (req: Request, res: Response) => {
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    const deletedVotes = await Vote.destroy({
+      where: {
+        created_at: {
+          [Op.lt]: twentyFourHoursAgo
+        }
+      }
+    });
+
+    console.log(`🧹 Nettoyage: ${deletedVotes} votes supprimés (plus de 24h)`);
+
+    res.json({
+      success: true,
+      deletedVotes,
+      message: `${deletedVotes} votes de plus de 24h supprimés`
+    });
+
+  } catch (error: any) {
+    console.error('❌ Erreur nettoyage:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors du nettoyage', 
       details: error.message 
     });
   }

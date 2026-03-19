@@ -2,6 +2,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 import { User, Bar, Vote } from '../types';
 import { mockUser, mockBars, mockFriends } from '../data/mockData';
 import { authService } from '../services/authService';
+import { ref } from 'process';
 
 interface AppContextType {
   user: User | null;
@@ -16,6 +17,7 @@ interface AppContextType {
   friends: typeof mockFriends;
   locationEnabled: boolean;
   setLocationEnabled: (enabled: boolean) => void;
+  refreshBarStats: (barId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -53,6 +55,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return bar;
       })
     );
+  };
+
+  const refreshBarStats = (barId: string) => {
+    // Force le rechargement des stats pour ce bar
+    setBars(prevBars => prevBars.map(bar => 
+      bar.id === barId ? { ...bar, lastUpdated: Date.now() } : bar
+    ));
   };
 
   const toggleFavorite = (barId: string) => {
@@ -96,6 +105,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         friends,
         locationEnabled,
         setLocationEnabled,
+        refreshBarStats,
       }}
     >
       {children}
