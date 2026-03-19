@@ -5,21 +5,54 @@ Application web/mobile permettant de trouver les bars selon l'ambiance en temps 
 ## 📁 Structure du projet
 
 ```
-bar-explorer-mood-live/
-├── frontend/          # React + TypeScript + Vite + Tailwind
-├── backend/           # Node.js + Express + TypeScript + Sequelize
-├── shared/            # Types et utilitaires communs
-├── docs/              # Documentation et cahier des charges
-└── bar-explorer-design-system.css  # Design system CSS
+Bar Explorer - Mood Live/
+├── .gitignore           # Configuration Git globale
+├── .env.example         # Modèle de variables d'environnement
+├── README.md            # Documentation du projet
+├── bar-explorer-design-system.css  # Design system CSS
+├── apache-config/       # Configuration Apache pour production
+├── backend/             # API Node.js + Express + TypeScript
+├── frontend/            # Application React + TypeScript
+├── docker-compose.yml   # Conteneurs Docker
+└── schema.sql           # Schéma de base de données
 ```
+
+## 🌐 Versions et Releases
+
+- **v1.0.0-auth** : Version fonctionnelle complète avec authentification ✅
+  - Disponible sur GitHub avec tag `v1.0.0-auth`
+  - Backend Node.js + Express + Sequelize + MySQL
+  - Frontend React avec carte interactive Leaflet
+  - Système d'authentification JWT complet
+
+## 🔄 Workflow Git Professionnel
+
+Le projet utilise un workflow Git de type "GitFlow" :
+
+```bash
+main                    # Version stable et fonctionnelle
+├── develop            # Branche d'intégration des features
+├── feature/nom-feature # Développement de chaque feature
+├── release/vX.Y.Z     # Préparation des releases
+└── hotfix/fix-urgent  # Corrections critiques
+```
+
+### Processus de développement
+
+1. **Créer une feature** : `git checkout -b feature/systeme-vote`
+2. **Développer** → **Tester** → **Valider**
+3. **Merger dans develop** : `git checkout develop && git merge feature/systeme-vote`
+4. **Après plusieurs features** → Créer release : `git checkout -b release/v1.1.0`
+5. **Tester** → **Merger dans main** + **Tag** + **Release GitHub**
 
 ## 🚀 Stack technique
 
-- **Frontend** : React + TypeScript + Vite + Tailwind CSS + Mapbox
+- **Frontend** : React + TypeScript + Vite + Tailwind CSS + Leaflet
 - **Backend** : Node.js + Express + TypeScript + Sequelize + MySQL
 - **Temps réel** : Socket.io
 - **Authentification** : JWT
-- **Déploiement** : Vercel (front) + Render (back)
+- **Déploiement** : Docker + Apache
+- **Base de données** : MySQL (local/Docker)
 
 ## 📱 Fonctionnalités MVP
 
@@ -30,95 +63,122 @@ bar-explorer-mood-live/
 - 👥 Social (amis, partage position)
 - ⭐ Favoris (max 3 bars)
 
-## 🎨 Design System
+## 🛠️ Installation et démarrage
+
+### Prérequis
+- Node.js 18+
+- MySQL 8+ ou Docker
+- Git
+
+### Installation
+
+1. **Cloner le projet** :
+```bash
+git clone https://github.com/Nizauorb/Bar-Explorer---Mood-Live.git
+cd Bar-Explorer---Mood-Live
+```
+
+2. **Configurer l'environnement** :
+```bash
+cp .env.example .env
+# Éditer .env avec vos configurations
+```
+
+3. **Installer les dépendances** :
+```bash
+# Backend
+cd backend && npm install
+
+# Frontend  
+cd ../frontend && npm install
+```
+
+4. **Démarrer avec Docker** (recommandé) :
+```bash
+docker-compose up -d
+```
+
+5. **Ou démarrer manuellement** :
+```bash
+# Terminal 1 - Backend
+cd backend && npm run dev
+
+# Terminal 2 - Frontend
+cd frontend && npm run dev
+```
+
+### 🎨 Design System
 
 Le projet utilise un design system personnalisé défini dans `bar-explorer-design-system.css` avec :
 - Couleurs primaires violettes
 - Typographie Inter
 - Composants UI cohérents
 
-## 📋 Développement
+## 📋 Développement - État actuel
 
 Le développement suit une approche étape par étape :
-1. Structure du projet ✅
-2. Frontend React + Vite + Tailwind ✅
-3. Intégration design system ✅
-4. Backend Node.js + Express ✅
-5. Base de données MySQL + Sequelize ✅
-6. Modèles et seeders ✅
-7. Routes API de base ✅
-8. Authentification JWT ✅
-9. Page principale avec carte interactive
-10. Affichage des bars sur la carte
 
-### 🎯 État actuel
+**✅ Fondations terminées** :
+- Structure du projet professionnelle avec workflow Git
+- Frontend React + Vite + Tailwind configuré
+- Intégration design system complète
+- Backend Node.js + Express + TypeScript
+- Base de données MySQL + Sequelize
+- Modèles et seeders complets
+- Routes API de base
+- Authentification JWT complète
+- Page principale avec carte interactive Leaflet
+- Affichage des bars sur la carte avec marqueurs
 
-**Frontend** : 
-- ✅ React + TypeScript + Vite configuré
-- ✅ Tailwind CSS intégré avec design system
-- ✅ Design system CSS complètement intégré (tokens, composants)
-- ✅ PostCSS configuré et serveur dev fonctionnel
-- ✅ Structure de base avec composants Bar Explorer
+**🔄 En cours** :
+- Système de vote (ambiance 0-5, affluence)
 
-**Backend** :
-- ✅ Node.js + Express + TypeScript configuré
-- ✅ Sequelize ORM avec MySQL configuré
-- ✅ Modèles complets (User, Bar, Vote, Favorite) avec associations
-- ✅ Seeders de démonstration (utilisateurs, bars, votes, favoris)
-- ✅ Scripts de gestion de base de données (migrate, seed, reset)
-- ✅ Socket.io configuré pour temps réel
-- ✅ Serveur dev fonctionnel sur port 3000
-- ✅ API REST complète (bars, users, authentification)
-- ✅ Authentification JWT avec middleware de protection
+**⏳ À venir** :
+- Popup bar (informations détaillées)
+- Filtres (ambiance, budget, style musical)
+- Page profil + favoris
+- Système d'amis
+- Partage de position "Rejoignez-moi"
+- Socket.io (heatmap temps réel)
 
-**Base de données** :
-- ✅ Configuration MySQL avec Sequelize
-- ✅ Modèles typés avec TypeScript
-- ✅ Seeders avec données de démonstration
-- ✅ Scripts de migration et peuplement
-
-**Authentification** :
-- ✅ JWT tokens avec expiration configurable
-- ✅ Middleware authenticateToken() pour routes protégées
-- ✅ Inscription avec validation (email, username, password)
-- ✅ Login avec vérification bcryptjs
-- ✅ Endpoint profil utilisateur protégé
-- ✅ Gestion complète des erreurs et validation
-
-**Carte Interactive** :
-- ✅ Intégration Leaflet avec OpenStreetMap (gratuit)
-- ✅ Marqueurs personnalisés pour les bars (icône 🍺 violette)
-- ✅ Géolocalisation utilisateur avec marqueur 📍
-- ✅ Popup détaillées avec informations des bars et derniers votes
-- ✅ Affichage de l'ambiance (⭐ 0-5) et niveau d'affluence
-- ✅ Correction des erreurs TypeScript (null/undefined) et Leaflet (appendChild)
-- ✅ Temps réel avec mise à jour automatique des marqueurs
-
-**Prochaines étapes** :
-- ✅ Page principale avec carte interactive (Leaflet)
-- ✅ Affichage des bars sur la carte avec marqueurs personnalisés
-- ✅ Géolocalisation utilisateur sur la carte
-- ✅ Popup détaillée avec informations des bars et votes
-- ✅ Correction des erreurs TypeScript et Leaflet
-- Implémenter le système de vote (ambiance 0-5, affluence)
-- Créer les composants frontend selon les mockups
-
-### 🎨 Design System intégré
-
-- **Tokens CSS** : Couleurs primaires violettes, surfaces, typographie
-- **Composants** : Boutons `.be-btn-primary`, `.be-btn-secondary`, cards `.be-card`
-- **Typographie** : Classes `.be-heading-*`, `.be-body`, `.be-caption`
-- **Thème** : Cohérent avec les mockups mobiles (authentification, profil)
-
-### 🗄️ Base de données
+## 🗄️ Base de données
 
 - **Modèles** : User, Bar, Vote, Favorite avec relations complètes
 - **Seeders** : Données de démo (3 utilisateurs, 5 bars, votes, favoris)
 - **Scripts** : `npm run db:migrate`, `npm run db:seed`, `npm run db:reset`
 
-### 🔐 Authentification
+## 🔐 Authentification
 
 - **JWT** : Tokens avec expiration configurable
 - **Endpoints** : `/api/auth/register`, `/api/auth/login`, `/api/auth/profile`
 - **Sécurité** : Hashing passwords, validation complète, middleware de protection
 - **Middleware** : `authenticateToken()` pour routes protégées, `optionalAuth()` optionnel
+
+## 📝 Contribuer
+
+Le projet suit des règles strictes de développement :
+
+1. **Approche étape par étape** : Chaque feature est développée séparément
+2. **Workflow Git** : Utilisation des branches feature/release/main
+3. **Tests et validation** : Chaque feature doit être testée avant merge
+4. **Documentation** : README et commentaires maintenus à jour
+5. **Clean code** : Code lisible, maintenable et bien structuré
+
+### 🚀 Prochaine feature : Système de vote
+
+Pour commencer le développement du système de vote :
+
+```bash
+git checkout develop
+git checkout -b feature/systeme-vote
+```
+
+**Objectifs** :
+- Interface de vote (ambiance 0-5, affluence)
+- API backend pour les votes
+- Mise à jour temps réel des marqueurs
+- Validation et anti-abus
+
+---
+
+**Bar Explorer - Mood Live** - Trouve le bar parfait selon l'ambiance du moment ! 🍺✨
