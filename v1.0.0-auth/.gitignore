@@ -14,3 +14,12 @@ build/
 
 # Docker
 .dockerignore
+
+#Autres 
+node_modules/
+*.db
+*.sqlite
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
