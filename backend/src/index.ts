@@ -2,6 +2,7 @@ import express from 'express';
 import { sequelize } from './config/sequelize';
 import cors from 'cors';
 import authRoutes from './routes/auth';
+import votesRoutes from './routes/votes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? ['https://ton-domaine.com']  // Prod
-    : ['http://localhost:3000', 'http://localhost:5173'],  // Dev
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost'],  // Dev
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -31,7 +32,8 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Bar Explorer API is running!' });
 });
 
-app.use('/api', authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/votes', votesRoutes);
 
 // Démarrage
 async function startServer() {

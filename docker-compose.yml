@@ -28,6 +28,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    env_file:
+      - .env
     volumes:
       - ./frontend/dist:/var/www/html:ro
       - ./apache-config/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro

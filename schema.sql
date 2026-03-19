@@ -197,18 +197,17 @@ BEGIN
 END//
 DELIMITER ;
 
--- Insertion de données de test (optionnel car on va utiliser les données de Google places API)
--- INSERT INTO bars (name, address, latitude, longitude, price_range, tags, description) VALUES
--- ('Le Petit Bar', '123 Rue de la République, Lyon', 45.7640, 4.8357, '€€', '["cocktails", "musique", "terrasse"]', 'Bar cosy avec cocktails artisanaux'),
--- ('La Cave à Jazz', '45 Rue Jean Jaurès, Lyon', 45.7785, 4.8565, '€€', '["jazz", "vin", "concerts"]', 'Bar de jazz avec concerts live'),
--- ('Le Rooftop', '10 Place Bellecour, Lyon', 45.7597, 4.8322, '€€€', '["terrasse", "vue", "chic"]', 'Rooftop avec vue panoramique');
+-- Insertion de bars de test pour le système de vote
+INSERT INTO bars (id, name, address, latitude, longitude, location, price_range, tags, description, hours, services, created_at, updated_at) VALUES
+('1', 'Le Pub Irlandais', '15 Rue de la Paix, Paris', 48.8708, 2.3133, ST_GeomFromText('POINT(2.3133 48.8708)', 4326), '€', '["Bière", "Sport", "Ambiance"]', 'Pub irlandais authentique', '{"opening": "16h-2h", "days": "Tous les jours"}', '["Matchs foot", "Bières importées"]', NOW(), NOW()),
+('2', 'Cocktail Bar Chic', '23 Avenue des Champs-Élysées, Paris', 48.8698, 2.3076, ST_GeomFromText('POINT(2.3076 48.8698)', 4326), '€€€', '["Cocktails", "Chic", "VIP"]', 'Bar à cocktails haut de gamme', '{"opening": "18h-1h", "days": "Mar-Dim"}', '["Cocktails artisanaux", "Service VIP"]', NOW(), NOW()),
+('3', 'Le Caveau', '8 Rue Mouffetard, Paris', 48.8342, 2.3470, ST_GeomFromText('POINT(2.3470 48.8342)', 4326), '€€', '["Vin", "Authentique", "Intime"]', 'Cave à vins traditionnelle', '{"opening": "17h-0h", "days": "Jeu-Lun"}', '["Dégustation vins", "Fromages"]', NOW(), NOW()),
+('4', 'La Brasserie du Coin', '5 Place du Marché, Paris', 48.8584, 2.2945, ST_GeomFromText('POINT(2.2945 48.8584)', 4326), '€€', '["Bière", "Traditionnel", "Calme"]', 'Brasserie traditionnelle, idéale pour boire une pinte', '{"opening": "16h-23h", "days": "Tous les jours"}', '["Bières artisanales", "Petite restauration"]', NOW(), NOW());
+
 
 -- Insertion d'utilisateurs de test (optionnel - à supprimer en production)
-INSERT INTO users (email, pseudo, email_verified) VALUES
-('test@example.com', 'TestUser', TRUE),
-('lucas@bar-explorer.com', 'Lucas22', TRUE),
-('anna@bar-explorer.com', 'Anna28', TRUE),
-('marc@bar-explorer.com', 'Marc15', TRUE);
+INSERT INTO users (email, pseudo, password_hash, email_verified, is_active) VALUES
+('test@bar-explorer.com', 'TestUser', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6QJw/2.1jO', TRUE, TRUE);
 
 -- Création des vues utiles
 CREATE VIEW active_users AS
