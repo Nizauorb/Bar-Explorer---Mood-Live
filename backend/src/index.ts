@@ -3,7 +3,6 @@ import { sequelize } from './config/sequelize';
 import cors from 'cors';
 import authRoutes from './routes/auth';
 import votesRoutes from './routes/votes';
-import favoritesRoutes from './routes/favorites';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,7 +34,6 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/votes', votesRoutes);
-app.use('/api/favorites', favoritesRoutes);
 
 // Démarrage
 async function startServer() {
