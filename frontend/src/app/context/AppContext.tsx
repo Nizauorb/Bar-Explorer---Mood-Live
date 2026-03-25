@@ -1,8 +1,14 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, Bar, Vote } from '../types';
-import { mockUser, mockBars, mockFriends } from '../data/mockData';
+import { mockBars, mockFriends } from '../data/mockData';
 import { authService } from '../services/authService';
+<<<<<<< Updated upstream
 import { ref } from 'process';
+=======
+import { addFavorite, removeFavorite } from '../services/favoritesService';
+import { BarWithStats } from '../hooks/useBarsStats';
+import { toast } from 'sonner';
+>>>>>>> Stashed changes
 
 interface AppContextType {
   user: User | null;
@@ -35,8 +41,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
+      // Charge les favoris directement après avoir set l'utilisateur
+      loadUserFavorites(currentUser.id);
     }
-  }, []);
+  }, []); 
 
   const updateBarMood = (barId: string, vote: Omit<Vote, 'id' | 'timestamp'>) => {
     setBars(prevBars =>
@@ -64,31 +72,65 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ));
   };
 
-  const toggleFavorite = (barId: string) => {
+  const toggleFavorite = async (barId: string) => {
     if (!user) return;
-
-    setUser(prevUser => {
-      if (!prevUser) return null;
-      
-      const isFavorite = prevUser.favoriteBarIds.includes(barId);
-      
+  
+    const isFavorite = user.favoriteBarIds.includes(barId);
+    
+    try {
       if (isFavorite) {
-        return {
-          ...prevUser,
-          favoriteBarIds: prevUser.favoriteBarIds.filter(id => id !== barId),
-        };
+        await removeFavorite(barId);
+        // Mettre à jour le state local
+        setUser(prevUser => {
+          if (!prevUser) return null;
+          return {
+            ...prevUser,
+            favoriteBarIds: prevUser.favoriteBarIds.filter(id => id !== barId),
+          };
+        });
       } else {
-        if (prevUser.favoriteBarIds.length >= 3) {
-          alert('Vous pouvez avoir maximum 3 bars favoris !');
-          return prevUser;
+        if (user.favoriteBarIds.length >= 3) {
+          toast.error('Vous pouvez avoir maximum 3 bars favoris !');
+          return;
         }
-        return {
-          ...prevUser,
-          favoriteBarIds: [...prevUser.favoriteBarIds, barId],
-        };
+        await addFavorite(barId);
+        // Mettre à jour le state local
+        setUser(prevUser => {
+          if (!prevUser) return null;
+          return {
+            ...prevUser,
+            favoriteBarIds: [...prevUser.favoriteBarIds, barId],
+          };
+        });
       }
-    });
+    } catch (error: any) {
+      toast.error(error.message || '❌ Erreur lors de la gestion des favoris');
+    }
   };
+
+  const loadUserFavorites = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/favorites/user/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('bar_explorer_session') || '{}').token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const favoriteIds = data.favorites?.map((f: any) => f.bar_id) || [];
+        
+        setUser(prevUser => prevUser ? {
+          ...prevUser,
+          favoriteBarIds: favoriteIds
+        } : null);
+      }
+    } catch (error) {
+      console.error('Erreur chargement favoris:', error);
+    }
+  };
+
+
 
   return (
     <AppContext.Provider

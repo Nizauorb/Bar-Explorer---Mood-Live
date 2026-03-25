@@ -1,7 +1,12 @@
 import { useApp } from '../context/AppContext';
 import { X, Heart, MapPin, Clock, DollarSign, Users as UsersIcon, TrendingUp } from 'lucide-react';
+<<<<<<< Updated upstream
 import { useState, useEffect } from 'react';
 import { getBarStats } from '../services/voteService';
+=======
+import { useEffect } from 'react';
+import { useBarsStats } from '../hooks/useBarsStats';
+>>>>>>> Stashed changes
 
 export default function BarPopup() {
   const { selectedBar, setSelectedBar, user, toggleFavorite, setShowVoteModal } = useApp();

@@ -43,7 +43,12 @@ const createCustomIcon = (mood: number) => {
 
 export default function MapPage() {
   const navigate = useNavigate();
+<<<<<<< Updated upstream
   const { bars, locationEnabled, setLocationEnabled, selectedBar, setSelectedBar, showVoteModal } = useApp();
+=======
+  const { locationEnabled, setLocationEnabled, selectedBar, setSelectedBar, showVoteModal } = useApp();
+  const { bars } = useBarsStats();
+>>>>>>> Stashed changes
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
