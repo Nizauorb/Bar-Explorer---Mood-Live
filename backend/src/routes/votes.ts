@@ -1,7 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { Vote } from '../models/sequelize/Vote';
-import { JWTService } from '../services/jwt.service';
 import { Op, fn, col } from 'sequelize';
+import { sequelize } from '../config/sequelize';
+import { Bar } from '../models/sequelize/Bar';
+import { Vote } from '../models/sequelize/Vote';
+import jwt from 'jsonwebtoken';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -20,18 +22,20 @@ const router = Router();
 
 // Middleware d'authentification
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  const token = JWTService.extractTokenFromHeader(req);
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+  
   if (!token) {
     return res.status(401).json({ error: 'Token requis' });
   }
   
-  const decoded = JWTService.verifyToken(token);
-  if (!decoded) {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    (req as AuthenticatedRequest).user = decoded;
+    next();
+  } catch (error) {
     return res.status(401).json({ error: 'Token invalide' });
   }
-  
-  (req as AuthenticatedRequest).user = decoded;
-  next();
 };
 
 // POST /api/votes
@@ -191,7 +195,7 @@ router.get('/user/:userId', authenticateToken, async (req: Request, res: Respons
 
     res.json({
       success: true,
-      votes: votes.map(vote => ({
+      votes: votes.map((vote: any) => ({
         id: vote.id,
         bar_id: vote.bar_id,
         mood: vote.mood,
@@ -234,6 +238,61 @@ router.delete('/cleanup', async (req: Request, res: Response) => {
     console.error('❌ Erreur nettoyage:', error);
     res.status(500).json({ 
       error: 'Erreur lors du nettoyage', 
+      details: error.message 
+    });
+  }
+});
+
+// GET /api/votes/all-bars - Obtenir tous les bars avec leurs stats
+router.get('/all-bars', async (req: Request, res: Response) => {
+  try {
+    // Forcer UTF-8 avant la requête
+    await sequelize.query('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
+    
+    const bars = await Bar.findAll({
+      attributes: [
+        'id', 'name', 'address', 'latitude', 'longitude', 
+        'price_range', 'tags', 'description', 'hours', 
+        'services', 'image_url', 'phone', 'website',
+        'current_mood', 'current_crowd', 'vote_count'
+      ]
+    });
+ 
+    // Debug : voir ce que Sequelize retourne exactement
+    console.log('🔍 Sequelize bar 1:', JSON.stringify(bars[0], null, 2));
+    
+    // Forcer l'encodage dans la réponse
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.json({
+      success: true,
+      bars: bars.map((bar: any) => ({
+        id: bar.id,
+        name: bar.name,
+        address: bar.address,
+        latitude: bar.latitude,
+        longitude: bar.longitude,
+        price_range: bar.price_range,
+        priceRange: bar.price_range,
+        tags: Array.isArray(bar.tags) ? bar.tags : (bar.tags ? JSON.parse(bar.tags) : []),
+        description: bar.description,
+        hours: bar.hours,
+        services: bar.services,
+        image_url: bar.image_url,
+        imageUrl: bar.image_url,
+        total_votes: bar.vote_count || 0,
+        vote_count: bar.vote_count || 0,
+        voteCount: bar.vote_count || 0,
+        average_mood: bar.current_mood || 0,
+        currentMood: bar.current_mood || 0,
+        mood_distribution: {},
+        crowd_distribution: {}
+      }))
+    });
+ 
+  } catch (error: any) {
+    console.error('❌ Erreur récupération bars:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors de la récupération des bars',
       details: error.message 
     });
   }

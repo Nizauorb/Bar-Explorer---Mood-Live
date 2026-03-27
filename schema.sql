@@ -95,6 +95,7 @@ CREATE TABLE favorites (
     user_id VARCHAR(36) NOT NULL,
     bar_id VARCHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (bar_id) REFERENCES bars(id) ON DELETE CASCADE,
@@ -202,8 +203,11 @@ INSERT INTO bars (id, name, address, latitude, longitude, location, price_range,
 ('1', 'Le Pub Irlandais', '15 Rue de la Paix, Paris', 48.8708, 2.3133, ST_GeomFromText('POINT(2.3133 48.8708)', 4326), '€', '["Bière", "Sport", "Ambiance"]', 'Pub irlandais authentique', '{"opening": "16h-2h", "days": "Tous les jours"}', '["Matchs foot", "Bières importées"]', NOW(), NOW()),
 ('2', 'Cocktail Bar Chic', '23 Avenue des Champs-Élysées, Paris', 48.8698, 2.3076, ST_GeomFromText('POINT(2.3076 48.8698)', 4326), '€€€', '["Cocktails", "Chic", "VIP"]', 'Bar à cocktails haut de gamme', '{"opening": "18h-1h", "days": "Mar-Dim"}', '["Cocktails artisanaux", "Service VIP"]', NOW(), NOW()),
 ('3', 'Le Caveau', '8 Rue Mouffetard, Paris', 48.8342, 2.3470, ST_GeomFromText('POINT(2.3470 48.8342)', 4326), '€€', '["Vin", "Authentique", "Intime"]', 'Cave à vins traditionnelle', '{"opening": "17h-0h", "days": "Jeu-Lun"}', '["Dégustation vins", "Fromages"]', NOW(), NOW()),
-('4', 'La Brasserie du Coin', '5 Place du Marché, Paris', 48.8584, 2.2945, ST_GeomFromText('POINT(2.2945 48.8584)', 4326), '€€', '["Bière", "Traditionnel", "Calme"]', 'Brasserie traditionnelle, idéale pour boire une pinte', '{"opening": "16h-23h", "days": "Tous les jours"}', '["Bières artisanales", "Petite restauration"]', NOW(), NOW());
-
+('4', 'La Brasserie du Coin', '5 Place du Marché, Paris', 48.8584, 2.2945, ST_GeomFromText('POINT(2.2945 48.8584)', 4326), '€€', '["Bière", "Traditionnel", "Calme"]', 'Brasserie traditionnelle, idéale pour boire une pinte', '{"opening": "16h-23h", "days": "Tous les jours"}', '["Bières artisanales", "Petite restauration"]', NOW(), NOW()),
+('5', 'Le Bar de la Paix', '10 Rue de la Paix, Paris', 48.8705, 2.3135, ST_GeomFromText('POINT(2.3135 48.8705)', 4326), '€€', '["Cocktails", "Chic", "Ambiance"]', 'Bar à cocktails chic et élégant', '{"opening": "18h-1h", "days": "Mar-Dim"}', '["Cocktails artisanaux", "Service VIP"]', NOW(), NOW()),
+('6', 'Le Pub des Amis', '20 Rue des Amis, Paris', 48.8602, 2.2956, ST_GeomFromText('POINT(2.2956 48.8602)', 4326), '€', '["Bière", "Sport", "Ambiance"]', 'Pub irlandais authentique', '{"opening": "16h-2h", "days": "Tous les jours"}', '["Matchs foot", "Bières importées"]', NOW(), NOW()),
+('7', 'Le Bar du Marché', '15 Place du Marché, Paris', 48.8582, 2.2942, ST_GeomFromText('POINT(2.2942 48.8582)', 4326), '€€', '["Cocktails", "Chic", "Ambiance"]', 'Bar à cocktails chic et élégant', '{"opening": "18h-1h", "days": "Mar-Dim"}', '["Cocktails artisanaux", "Service VIP"]', NOW(), NOW()),
+('8', 'La Brasserie de la Paix', '25 Rue de la Paix, Paris', 48.8708, 2.3138, ST_GeomFromText('POINT(2.3138 48.8708)', 4326), '€€', '["Bière", "Traditionnel", "Calme"]', 'Brasserie traditionnelle, idéale pour boire une pinte', '{"opening": "16h-23h", "days": "Tous les jours"}', '["Bières artisanales", "Petite restauration"]', NOW(), NOW());
 
 -- Insertion d'utilisateurs de test (optionnel - à supprimer en production)
 INSERT INTO users (email, pseudo, password_hash, email_verified, is_active) VALUES

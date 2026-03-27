@@ -6,6 +6,8 @@ import { User, MapPin, Search, Filter, Users } from 'lucide-react';
 import BarPopup from '../components/BarPopup';
 import VoteModal from '../components/VoteModal';
 import HeatmapLegend from '../components/HeatmapLegend';
+import { useBarsStats } from '../hooks/useBarsStats';
+import { calculateCurrentCrowdFromBar, getCrowdColor, getCrowdRadius } from '../utils/heatmapUtils';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icon
@@ -20,30 +22,10 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-const getMarkerColor = (mood: number): string => {
-  if (mood >= 4) return '#EF4444';
-  if (mood >= 3) return '#F59E0B';
-  if (mood >= 2) return '#FBBF24';
-  return '#10B981';
-};
-
-const createCustomIcon = (mood: number) => {
-  const color = getMarkerColor(mood);
-  const svgIcon = `
-    <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="15" cy="15" r="12" fill="${color}" stroke="white" stroke-width="3"/>
-    </svg>
-  `;
-  return new L.Icon({
-    iconUrl: 'data:image/svg+xml;base64,' + btoa(svgIcon),
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-  });
-};
-
 export default function MapPage() {
   const navigate = useNavigate();
-  const { bars, locationEnabled, setLocationEnabled, selectedBar, setSelectedBar, showVoteModal } = useApp();
+  const { locationEnabled, setLocationEnabled, selectedBar, setSelectedBar, showVoteModal } = useApp();
+  const { bars } = useBarsStats();
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
@@ -88,11 +70,15 @@ export default function MapPage() {
 
     // Add circles for heatmap
     bars.forEach(bar => {
+      const currentCrowd = calculateCurrentCrowdFromBar(bar);
+      const color = getCrowdColor(currentCrowd, bar.voteCount);
+      const radius = getCrowdRadius(currentCrowd);
+      
       const circle = L.circle([bar.latitude, bar.longitude], {
-        radius: bar.currentMood * 100,
-        fillColor: getMarkerColor(bar.currentMood),
+        radius: radius,
+        fillColor: color,
         fillOpacity: 0.2,
-        color: getMarkerColor(bar.currentMood),
+        color: color,
         opacity: 0.4,
         weight: 2,
       }).addTo(mapRef.current!);
@@ -101,10 +87,23 @@ export default function MapPage() {
 
     // Add markers for bars
     bars.forEach(bar => {
+      const currentCrowd = calculateCurrentCrowdFromBar(bar);
+      const color = getCrowdColor(currentCrowd, bar.voteCount);
+      const svgIcon = `
+        <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="15" cy="15" r="12" fill="${color}" stroke="white" stroke-width="3"/>
+        </svg>
+      `;
+      const customIcon = new L.Icon({
+        iconUrl: 'data:image/svg+xml;base64,' + btoa(svgIcon),
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
+      
       const marker = L.marker([bar.latitude, bar.longitude], {
-        icon: createCustomIcon(bar.currentMood),
+        icon: customIcon,
       })
-        .bindPopup(`<div class="text-sm"><strong>${bar.name}</strong></div>`)
+        .bindPopup(`<div class="text-sm"><strong>${bar.name}</strong><br>Affluence: ${currentCrowd}<br>Votes: ${bar.voteCount}</div>`)
         .on('click', () => setSelectedBar(bar))
         .addTo(mapRef.current!);
       markersRef.current.push(marker);

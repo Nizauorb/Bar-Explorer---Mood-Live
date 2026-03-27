@@ -1,12 +1,15 @@
+// frontend/src/app/pages/ProfilePage.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useApp } from '../context/AppContext';
 import { authService } from '../services/authService';
 import { ArrowLeft, Edit3, Heart, Music, Calendar, LogOut } from 'lucide-react';
+import { useBarsStats } from '../hooks/useBarsStats';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUser, bars } = useApp();
+  const { user, setUser, setSelectedBar } = useApp();
+  const { bars } = useBarsStats();
   const [isEditing, setIsEditing] = useState(false);
   const [pseudo, setPseudo] = useState(user?.pseudo || '');
   const [goOutFrequency, setGoOutFrequency] = useState(user?.preferences?.goOutFrequency || '');
@@ -19,21 +22,21 @@ export default function ProfilePage() {
 
   const favoriteBars = bars.filter(bar => user.favoriteBarIds.includes(bar.id));
 
-const handleSave = async () => {
-  const result = await authService.updateUser({
-    id: user.id,
-    pseudo,
-    preferences: {
-      musicGenres,
-      goOutFrequency,
-    },
-  });
-  
-  if (result.success && result.user) {
-    setUser(result.user);
-  }
-  setIsEditing(false);
-};
+  const handleSave = async () => {
+    const result = await authService.updateUser({
+      id: user.id,
+      pseudo,
+      preferences: {
+        musicGenres,
+        goOutFrequency,
+      },
+    });
+    
+    if (result.success && result.user) {
+      setUser(result.user);
+    }
+    setIsEditing(false);
+  };
 
   const handleLogout = () => {
     authService.logout();
@@ -203,8 +206,9 @@ const handleSave = async () => {
                   key={bar.id}
                   className="flex items-center gap-4 p-4 bg-[#E8EBF5] rounded-xl hover:bg-[#d8dbe5] transition-colors cursor-pointer"
                   onClick={() => {
+                    // Ouvre directement la popup du bar
+                    setSelectedBar(bar);
                     navigate('/map');
-                    // Would set selected bar here
                   }}
                 >
                   <div className="w-12 h-12 rounded-lg bg-[#8A7CF5] flex items-center justify-center text-white flex-shrink-0">
@@ -220,7 +224,7 @@ const handleSave = async () => {
                   </div>
                   <div className="text-right">
                     <div className="text-[#1A1B2E]" style={{ fontSize: '16px', fontWeight: 700 }}>
-                      {bar.currentMood.toFixed(1)}
+                      {typeof bar.average_mood === 'string' ? parseFloat(bar.average_mood).toFixed(1) : (bar.average_mood || 0).toFixed(1)}
                     </div>
                     <div className="text-[#717182]" style={{ fontSize: '10px' }}>
                       /5

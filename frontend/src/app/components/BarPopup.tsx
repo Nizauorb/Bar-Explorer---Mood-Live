@@ -2,6 +2,7 @@ import { useApp } from '../context/AppContext';
 import { X, Heart, MapPin, Clock, DollarSign, Users as UsersIcon, TrendingUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getBarStats } from '../services/voteService';
+import { calculateCurrentCrowd } from '../utils/heatmapUtils';
 
 export default function BarPopup() {
   const { selectedBar, setSelectedBar, user, toggleFavorite, setShowVoteModal } = useApp();
@@ -43,22 +44,9 @@ export default function BarPopup() {
 
   const isFavorite = user?.favoriteBarIds.includes(selectedBar.id);
 
-  // Utiliser uniquement les stats API
+  // Utiliser la logique unifiée pour l'affluence
   const currentMood = barStats?.average_mood || 0;
-  const currentCrowd = barStats?.total_votes > 0 && barStats?.crowd_distribution ? 
-    (() => {
-      const distribution = barStats.crowd_distribution as { faible: number; moyenne: number; pleine: number };
-      const total = Object.values(distribution).reduce((a, b) => a + b, 0);
-      const majority = Object.entries(distribution).find(([_, count]) => count > total / 2);
-      
-      if (majority) return majority[0];
-      
-      
-      const avgMood = barStats.average_mood;
-      if (avgMood <= 2) return 'faible';
-      if (avgMood <= 3.5) return 'moyenne';
-      return 'pleine';
-    })() : 'données';
+  const currentCrowd = calculateCurrentCrowd(selectedBar, barStats);
   const voteCount = barStats?.total_votes || 0;
 
   const getMoodLabel = (mood: number): string => {
@@ -147,6 +135,15 @@ export default function BarPopup() {
                 <div className="text-[#717182]" style={{ fontSize: '14px' }}>
                   Chargement...
                 </div>
+              ) : voteCount === 0 ? (
+                <div className="text-center">
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '20px', fontWeight: 700 }}>
+                    ?
+                  </div>
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '12px' }}>
+                    Pas de données
+                  </div>
+                </div>
               ) : (
                 <>
                   <div className="text-[#1A1B2E]" style={{ fontSize: '20px', fontWeight: 700 }}>
@@ -169,6 +166,15 @@ export default function BarPopup() {
               {isLoadingStats ? (
                 <div className="text-[#717182]" style={{ fontSize: '14px' }}>
                   Chargement...
+                </div>
+              ) : voteCount === 0 ? (
+                <div className="text-center">
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '20px', fontWeight: 700 }}>
+                    ?
+                  </div>
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '12px' }}>
+                    Pas de données
+                  </div>
                 </div>
               ) : (
                 <>
@@ -217,7 +223,9 @@ export default function BarPopup() {
                     Horaires
                   </div>
                   <div className="text-[#717182]" style={{ fontSize: '14px' }}>
-                    {selectedBar.hours}
+                    {typeof selectedBar.hours === 'string' 
+                      ? selectedBar.hours 
+                      : `${selectedBar.hours?.opening || ''} - ${selectedBar.hours?.days || ''}`}
                   </div>
                 </div>
               </div>

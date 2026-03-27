@@ -1,52 +1,9 @@
+import { VoteRequest, VoteResponse, BarStatsResponse, AllBarsResponse } from '../types';
+import { normalizeBars } from '../utils/normalizeData';
+
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? '/api/votes'  // En production (Apache proxy)
   : 'http://localhost:3000/api/votes';  // En développement
-
-export interface VoteRequest {
-  bar_id: string;
-  mood: number;
-  crowd: 'faible' | 'moyenne' | 'pleine';
-  comment?: string;
-  user_latitude?: number;
-  user_longitude?: number;
-}
-
-export interface VoteResponse {
-  success: boolean;
-  vote?: {
-    id: string;
-    bar_id: string;
-    mood: number;
-    crowd: 'faible' | 'moyenne' | 'pleine';
-    comment?: string;
-    created_at: string;
-  };
-  error?: string;
-}
-
-export interface BarStatsResponse {
-  success: boolean;
-  stats?: {
-    total_votes: number;
-    average_mood: number;
-    mood_distribution: { [key: number]: number };
-    crowd_distribution: { faible: number; moyenne: number; pleine: number };
-  };
-  error?: string;
-}
-
-export interface UserVotesResponse {
-  success: boolean;
-  votes?: Array<{
-    id: string;
-    bar_id: string;
-    mood: number;
-    crowd: 'faible' | 'moyenne' | 'pleine';
-    comment?: string;
-    created_at: string;
-  }>;
-  error?: string;
-}
 
 // Créer ou mettre à jour un vote
 export const createVote = async (voteData: VoteRequest): Promise<VoteResponse> => {
@@ -98,7 +55,7 @@ export const getBarStats = async (barId: string): Promise<BarStatsResponse> => {
 };
 
 // Obtenir les votes d'un utilisateur
-export const getUserVotes = async (userId: string): Promise<UserVotesResponse> => {
+export const getUserVotes = async (userId: string): Promise<VoteResponse> => {
   const token = localStorage.getItem('bar_explorer_session');
   if (!token) {
     throw new Error('Token d\'authentification manquant');
@@ -121,6 +78,31 @@ export const getUserVotes = async (userId: string): Promise<UserVotesResponse> =
     return data;
   } catch (error) {
     console.error('Erreur votes utilisateur:', error);
+    throw error;
+  }
+};
+
+export const getAllBars = async (): Promise<AllBarsResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/all-bars`);
+    const data = await response.json();
+    
+    console.log('🔍 Données brutes reçues:', data.bars[0]);
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Erreur lors de la récupération des bars');
+    }
+
+    // Normaliser les données ici
+    if (data.success && data.bars) {
+      data.bars = normalizeBars(data.bars);
+      
+      console.log(' Données normalisées:', data.bars[0]);
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Erreur bars:', error);
     throw error;
   }
 };

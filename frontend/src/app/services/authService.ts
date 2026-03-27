@@ -1,22 +1,8 @@
-import { User } from '../types';
+import { User, AuthResponse, LoginResponse } from '../types';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? '/api/auth'  // En production (Apache proxy)
   : 'http://localhost:3000/api/auth';  // En développement
-
-interface AuthResponse {
-  success: boolean;
-  user?: User;
-  token?: string;
-  error?: string;
-}
-
-interface LoginResponse {
-  success: boolean;
-  user?: User;
-  token?: string;
-  error?: string;
-}
 
 // Get current session from localStorage
 const getSession = (): { token: string; user: User } | null => {

@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
-// Charger les variables d'environnement (uniquement pour le développement local)
+// Charger les variables d'environnement
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
@@ -34,7 +34,9 @@ export const sequelize = new Sequelize(
       timestamps: true,
       underscored: true,
       createdAt: 'created_at',
-      updatedAt: 'updated_at'
+      updatedAt: 'updated_at',
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci'
     }
   }
 );
@@ -44,6 +46,9 @@ export const testSequelizeConnection = async (): Promise<boolean> => {
   try {
     await sequelize.authenticate();
     console.log('✅ Connexion Sequelize à MySQL établie');
+    // Forcer UTF-8 après la connexion
+    await sequelize.query('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
+    console.log('✅ UTF-8 forcé dans la connexion');
     return true;
   } catch (error) {
     console.error('❌ Erreur de connexion Sequelize:', error);
@@ -51,17 +56,3 @@ export const testSequelizeConnection = async (): Promise<boolean> => {
   }
 };
 
-// Synchronisation des modèles (développement uniquement)
-export const syncDatabase = async (force = false) => {
-  if (process.env.NODE_ENV === 'production') {
-    console.warn('⚠️ Synchronisation forcée désactivée en production');
-    return;
-  }
-  
-  try {
-    await sequelize.sync({ force });
-    console.log(`📊 Base de données synchronisée (force: ${force})`);
-  } catch (error) {
-    console.error('❌ Erreur de synchronisation:', error);
-  }
-};
