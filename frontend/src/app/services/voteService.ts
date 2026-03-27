@@ -87,17 +87,13 @@ export const getAllBars = async (): Promise<AllBarsResponse> => {
     const response = await fetch(`${API_BASE_URL}/all-bars`);
     const data = await response.json();
     
-    console.log('🔍 Données brutes reçues:', data.bars[0]);
-    
     if (!response.ok) {
-      throw new Error(data.error || 'Erreur lors de la récupération des bars');
+      throw new Error(data.error || 'Erreur lors du chargement des bars');
     }
 
     // Normaliser les données ici
     if (data.success && data.bars) {
       data.bars = normalizeBars(data.bars);
-      
-      console.log(' Données normalisées:', data.bars[0]);
     }
 
     return data;

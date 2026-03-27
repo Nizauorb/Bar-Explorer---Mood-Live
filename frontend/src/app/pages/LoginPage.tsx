@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       if (response.success) {
         setUser(response.user!);
-        navigate('/profile');
+        navigate('/map');
       } else {
         setError(response.error || 'Une erreur est survenue');
       }
