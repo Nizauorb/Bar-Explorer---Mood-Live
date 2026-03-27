@@ -1,12 +1,53 @@
 import { useApp } from '../context/AppContext';
 import { X, Heart, MapPin, Clock, DollarSign, Users as UsersIcon, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getBarStats } from '../services/voteService';
+import { calculateCurrentCrowd } from '../utils/heatmapUtils';
 
 export default function BarPopup() {
   const { selectedBar, setSelectedBar, user, toggleFavorite, setShowVoteModal } = useApp();
+  const [barStats, setBarStats] = useState<any>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
+  // Déplacer la fonction hors du useEffect
+  const handleVoteUpdate = (event: any) => {
+    if (selectedBar && event.detail.barId === selectedBar.id) {
+      loadBarStats(selectedBar.id); // Recharge les stats
+    }
+  };
+ 
+  // Charger les stats du bar quand il est sélectionné
+  useEffect(() => {
+    if (selectedBar) {
+      loadBarStats(selectedBar.id);
+    }
+ 
+    window.addEventListener('voteUpdated', handleVoteUpdate);
+    return () => window.removeEventListener('voteUpdated', handleVoteUpdate);
+  }, [selectedBar]);
+
+  const loadBarStats = async (barId: string) => {
+    setIsLoadingStats(true);
+    try {
+      const response = await getBarStats(barId);
+      if (response.success && response.stats) {
+        setBarStats(response.stats);
+      }
+    } catch (error) {
+      console.error('Erreur chargement stats:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
 
   if (!selectedBar) return null;
 
   const isFavorite = user?.favoriteBarIds.includes(selectedBar.id);
+
+  // Utiliser la logique unifiée pour l'affluence
+  const currentMood = barStats?.average_mood || 0;
+  const currentCrowd = calculateCurrentCrowd(selectedBar, barStats);
+  const voteCount = barStats?.total_votes || 0;
 
   const getMoodLabel = (mood: number): string => {
     if (mood >= 4.5) return '🔥 Ambiance de folie !';
@@ -90,12 +131,29 @@ export default function BarPopup() {
                   AMBIANCE
                 </span>
               </div>
-              <div className="text-[#1A1B2E]" style={{ fontSize: '20px', fontWeight: 700 }}>
-                {selectedBar.currentMood.toFixed(1)}/5
-              </div>
-              <div className="text-[#717182]" style={{ fontSize: '12px' }}>
-                {getMoodLabel(selectedBar.currentMood)}
-              </div>
+              {isLoadingStats ? (
+                <div className="text-[#717182]" style={{ fontSize: '14px' }}>
+                  Chargement...
+                </div>
+              ) : voteCount === 0 ? (
+                <div className="text-center">
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '20px', fontWeight: 700 }}>
+                    ?
+                  </div>
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '12px' }}>
+                    Pas de données
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="text-[#1A1B2E]" style={{ fontSize: '20px', fontWeight: 700 }}>
+                    {currentMood.toFixed(1)}/5
+                  </div>
+                  <div className="text-[#717182]" style={{ fontSize: '12px' }}>
+                    {getMoodLabel(currentMood)}
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="bg-gradient-to-br from-[#8A7CF5]/10 to-[#65498D]/10 rounded-xl p-4">
@@ -105,14 +163,43 @@ export default function BarPopup() {
                   AFFLUENCE
                 </span>
               </div>
-              <div className="text-[#1A1B2E] capitalize" style={{ fontSize: '20px', fontWeight: 700 }}>
-                {selectedBar.currentCrowd}
-              </div>
-              <div className="text-[#717182]" style={{ fontSize: '12px' }}>
-                {getCrowdLabel(selectedBar.currentCrowd)}
-              </div>
+              {isLoadingStats ? (
+                <div className="text-[#717182]" style={{ fontSize: '14px' }}>
+                  Chargement...
+                </div>
+              ) : voteCount === 0 ? (
+                <div className="text-center">
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '20px', fontWeight: 700 }}>
+                    ?
+                  </div>
+                  <div className="text-[#9CA3AF]" style={{ fontSize: '12px' }}>
+                    Pas de données
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="text-[#1A1B2E] capitalize" style={{ fontSize: '20px', fontWeight: 700 }}>
+                    {currentCrowd}
+                  </div>
+                  <div className="text-[#717182]" style={{ fontSize: '12px' }}>
+                    {getCrowdLabel(currentCrowd)}
+                  </div>
+                </>
+              )}
             </div>
           </div>
+
+          {/* Message d'incitation si aucun vote */}
+          {barStats?.total_votes === 0 && (
+            <div className="bg-[#8A7CF5]/10 rounded-xl p-4 text-center">
+              <p className="text-[#8A7CF5]" style={{ fontSize: '14px', fontWeight: 600 }}>
+                🎯 Soyez le premier à voter !
+              </p>
+              <p className="text-[#717182]" style={{ fontSize: '12px' }}>
+                Partagez l'ambiance actuelle pour aider la communauté
+              </p>
+            </div>
+          )}
 
           {/* Info */}
           <div className="space-y-3">
@@ -136,7 +223,9 @@ export default function BarPopup() {
                     Horaires
                   </div>
                   <div className="text-[#717182]" style={{ fontSize: '14px' }}>
-                    {selectedBar.hours}
+                    {typeof selectedBar.hours === 'string' 
+                      ? selectedBar.hours 
+                      : `${selectedBar.hours?.opening || ''} - ${selectedBar.hours?.days || ''}`}
                   </div>
                 </div>
               </div>
@@ -186,7 +275,7 @@ export default function BarPopup() {
 
           {/* Vote Count */}
           <div className="text-center text-[#717182]" style={{ fontSize: '12px' }}>
-            {selectedBar.voteCount} personnes ont voté récemment
+            {isLoadingStats ? 'Chargement...' : `${voteCount} personnes ont voté récemment`}
           </div>
 
           {/* Action Buttons */}

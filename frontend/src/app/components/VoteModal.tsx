@@ -2,29 +2,69 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, TrendingUp, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { createVote, VoteRequest } from '../services/voteService';
 
 export default function VoteModal() {
-  const { selectedBar, setShowVoteModal, updateBarMood, user } = useApp();
+  const { selectedBar, setShowVoteModal, user, refreshBarStats  } = useApp();
   const [mood, setMood] = useState(3);
   const [crowd, setCrowd] = useState<'faible' | 'moyenne' | 'pleine'>('moyenne');
+  const [isLoading, setIsLoading ] = useState(false);
 
   if (!selectedBar) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!user) {
       toast.error('Vous devez être connecté pour voter');
       return;
     }
 
-    updateBarMood(selectedBar.id, {
-      userId: user.id,
-      barId: selectedBar.id,
-      mood,
-      crowd,
-    });
+    if (!user || isLoading) {
+      return; 
+    }
 
-    toast.success('Vote enregistré ! Merci pour votre contribution 🎉');
-    setShowVoteModal(false);
+    setIsLoading(true);
+
+    try {
+      const voteData: VoteRequest = {
+        bar_id: selectedBar.id,
+        mood: Math.round(mood), // API attend un entier 0-5
+        crowd,
+        comment: `Ambiance: ${getMoodDescription(mood)}`,
+      };
+
+      const response = await createVote(voteData);
+
+      if (response.success) {
+        toast.success('Vote enregistré ! Merci pour votre contribution 🎉');
+        setShowVoteModal(false);
+        
+        // Forcer le rechargement des stats dans BarPopup
+        if (selectedBar) {
+          // Déclencher un événement que BarPopup écoute
+          const event = new CustomEvent('voteUpdated', { detail: { barId: selectedBar.id } });
+          window.dispatchEvent(event);
+        }
+      }
+    } catch (error: any) {
+      console.error('Erreur vote:', error);
+      if (error.message.includes('attendre')) {
+        toast.error(error.message);
+      } else {
+        toast.error(error.message || 'Erreur lors du vote');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getMoodDescription = (moodValue: number): string => {
+    if (moodValue === 0) return '🤫 Très calme';
+    if (moodValue <= 1) return '😌 Tranquille';
+    if (moodValue <= 2) return '😊 Détendu';
+    if (moodValue <= 3) return '🎵 Ambiance agréable';
+    if (moodValue <= 4) return '🎉 Très animé';
+    if (moodValue < 5) return '🔥 Ambiance de folie';
+    return '🔥🔥 FIESTA TOTALE !';
   };
 
   return (
@@ -95,13 +135,7 @@ export default function VoteModal() {
             {/* Mood description */}
             <div className="text-center py-3 px-4 bg-gradient-to-r from-[#8A7CF5]/10 to-[#65498D]/10 rounded-xl">
               <span className="text-[#1A1B2E]" style={{ fontSize: '16px', fontWeight: 600 }}>
-                {mood === 0 && '🤫 Très calme'}
-                {mood > 0 && mood <= 1 && '😌 Tranquille'}
-                {mood > 1 && mood <= 2 && '😊 Détendu'}
-                {mood > 2 && mood <= 3 && '🎵 Ambiance agréable'}
-                {mood > 3 && mood <= 4 && '🎉 Très animé'}
-                {mood > 4 && mood < 5 && '🔥 Ambiance de folie'}
-                {mood === 5 && '🔥🔥 FIESTA TOTALE !'}
+                {getMoodDescription(mood)}
               </span>
             </div>
           </div>
@@ -170,10 +204,11 @@ export default function VoteModal() {
           {/* Submit Button */}
           <button
             onClick={handleSubmit}
-            className="w-full bg-[#8A7CF5] hover:bg-[#7B6BE5] text-white py-4 rounded-xl transition-colors shadow-lg"
+            disabled={isLoading}
+            className="w-full bg-[#8A7CF5] hover:bg-[#7B6BE5] disabled:bg-[#ccc] disabled:cursor-not-allowed text-white py-4 rounded-xl transition-colors shadow-lg"
             style={{ fontSize: '16px', fontWeight: 600 }}
           >
-            Envoyer mon vote
+            {isLoading ? 'Envoi en cours...' : 'Envoyer mon vote'}
           </button>
         </div>
       </div>

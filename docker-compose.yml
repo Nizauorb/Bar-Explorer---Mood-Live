@@ -4,6 +4,7 @@ services:
     image: mysql:8.0
     container_name: bar-explorer-mysql
     restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --init-connect="SET NAMES utf8mb4"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -28,6 +29,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    env_file:
+      - .env
     volumes:
       - ./frontend/dist:/var/www/html:ro
       - ./apache-config/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
