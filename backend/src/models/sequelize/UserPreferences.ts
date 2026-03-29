@@ -4,9 +4,8 @@ import { sequelize } from '../../config/sequelize';
 interface UserPreferencesAttributes {
   id: string;
   user_id: string;
-  music_genres: string;
+  music_genres: string[];
   go_out_frequency: 'jamais' | 'rarement' | 'occasionnellement' | 'souvent' | 'tres_souvent';
-  preferred_price_range: '€' | '€€' | '€€€';
   notifications_enabled: boolean;
   location_sharing: boolean;
 }
@@ -16,9 +15,8 @@ interface UserPreferencesCreationAttributes extends Optional<UserPreferencesAttr
 export class UserPreferences extends Model<InferAttributes<UserPreferences>, UserPreferencesCreationAttributes> implements UserPreferencesAttributes {
   public id!: string;
   public user_id!: string;
-  public music_genres!: string;
+  public music_genres!: string[];
   public go_out_frequency!: 'jamais' | 'rarement' | 'occasionnellement' | 'souvent' | 'tres_souvent';
-  public preferred_price_range!: '€' | '€€' | '€€€';
   public notifications_enabled!: boolean;
   public location_sharing!: boolean;
 
@@ -48,10 +46,6 @@ UserPreferences.init(
     go_out_frequency: {
       type: DataTypes.ENUM('jamais', 'rarement', 'occasionnellement', 'souvent', 'tres_souvent'),
       defaultValue: 'occasionnellement',
-    },
-    preferred_price_range: {
-      type: DataTypes.ENUM('€', '€€', '€€€'),
-      defaultValue: '€€',
     },
     notifications_enabled: {
       type: DataTypes.BOOLEAN,

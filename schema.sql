@@ -29,7 +29,6 @@ CREATE TABLE user_preferences (
     user_id VARCHAR(36) NOT NULL,
     music_genres JSON,
     go_out_frequency ENUM('jamais', 'rarement', 'occasionnellement', 'souvent', 'tres_souvent') DEFAULT 'occasionnellement',
-    preferred_price_range ENUM('€', '€€', '€€€') DEFAULT '€€',
     notifications_enabled BOOLEAN DEFAULT TRUE,
     location_sharing BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

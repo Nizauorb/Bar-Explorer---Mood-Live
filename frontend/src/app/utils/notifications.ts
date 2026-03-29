@@ -66,4 +66,5 @@ export const notifications = {
   networkError: () => showNotification('Erreur de connexion. Vérifiez votre internet.', 'error'),
   unexpectedError: () => showNotification('Une erreur inattendue est survenue.', 'error'),
   operationSuccess: (message?: string) => showNotification(message || 'Opération réussie', 'success'),
+  operationError: (error?: string) => showNotification(error || 'Erreur lors de l\'opération', 'error'),
 };
